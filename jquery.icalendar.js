@@ -170,8 +170,9 @@
         });
         var url = (site.url == 'echo' ? '#' : url);
         var item = $('<li></li>');
-        var anchor = $('<a href="' + url + '" title="' + settings.tipPrefix + site.display + '"' +
-          (site.url == 'echo' ? '' : ' target="' + settings._target + '"') + '></a>');
+        var anchor = $(
+          `<a href="${url}" title="${settings.tipPrefix}${site.display}" ${site.url == 'echo' ? '' : ' target="' + settings._target + '"'}></a>`
+        );
         if (site.url == 'echo') {
           anchor.on('click', function () {
             return $.icalendar._echo(target[0], calId);
@@ -183,11 +184,11 @@
             html += `<span style="background:transparent url(${settings.icons}) no-repeat -${site.icon * settings.iconSize}px 0px;"></span>`;
           }
           else {
-            html += `<img src="${site.icon}" style="vertical-align: middle;"/>`;
+            html += `<img src="${site.icon}"/>`;
           }
           html += (settings.compact ? '' : '&#xa0;');
         }
-        anchor.html(html + (settings.compact ? '' : site.display));
+        anchor.html(html + (settings.compact ? '' : `<span>${site.display}</span>`));
         item.append(anchor);
         return item;
       };
