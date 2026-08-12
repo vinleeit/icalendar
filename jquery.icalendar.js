@@ -8,7 +8,6 @@
 (function ($) { // Hide scope, no $ conflict
 
   var PROP_NAME = 'icalendar';
-  var FLASH_ID = 'icalendar-flash-copy';
 
   /* iCalendar sharing manager. */
   function iCalendar() {
@@ -44,7 +43,6 @@
       copySucceeded: 'The event has been copied to your clipboard',
       // Failure message during clipboard copy
       copyFailed: 'Failed to copy the event to the clipboard\n',
-      copyFlash: 'clipboard.swf', // The URL for the Flash clipboard copy module
       // Clipboard not supported message
       copyUnavailable: 'The clipboard is unavailable, please copy the event details from below:\n'
     };
@@ -236,17 +234,11 @@
       else if (settings.echoField) {
         $(settings.echoField).val(event);
       }
-      else if (!settings.copyFlash) {
-        alert(settings.copyUnavailable + event);
-      }
-      else if (confirm(settings.copyConfirm)) {
-        var error = '';
-        if (error = copyViaFlash(event, settings.copyFlash)) {
-          alert(settings.copyFailed + error);
-        }
-        else {
-          alert(settings.copySucceeded);
-        }
+      else if (navigator.clipboard && confirm(settings.copyConfirm)) {
+        navigator.clipboard.writeText(event).then(
+          function () { alert(settings.copySucceeded); },
+          function (err) { alert(settings.copyFailed + err); }
+        );
       }
       return false; // Don't follow link
     },
@@ -510,23 +502,6 @@
       }
     }
     return def;
-  }
-
-  /* Copy the given text to the system clipboard via Flash.
-     @param  text  (string) the text to copy
-     @param  url   (string) the URL for the Flash clipboard copy module
-     @return  (string) '' if successful, error message if not */
-  function copyViaFlash(text, url) {
-    $('#' + FLASH_ID).remove();
-    try {
-      $('body').append('<div id="' + FLASH_ID + '"><embed src="' + url +
-        '" FlashVars="clipboard=' + encodeURIComponent(text) +
-        '" width="0" height="0" type="application/x-shockwave-flash"></embed></div>');
-      return '';
-    }
-    catch (e) {
-      return e;
-    }
   }
 
   /* Pattern for folded lines: start with a whitespace character */
