@@ -173,7 +173,7 @@
         var anchor = $('<a href="' + url + '" title="' + settings.tipPrefix + site.display + '"' +
           (site.url == 'echo' ? '' : ' target="' + settings._target + '"') + '></a>');
         if (site.url == 'echo') {
-          anchor.click(function () {
+          anchor.on('click', function () {
             return $.icalendar._echo(target[0], calId);
           });
         }
@@ -202,7 +202,7 @@
         list.before('<span class="icalendar_popup_text">' +
           settings.popupText + '</span>').
           wrap('<div class="icalendar_popup"></div>');
-        target.click(function () {
+        target.on('click', function () {
           var target = $(this);
           var offset = target.offset();
           $('.icalendar_popup', target).css('left', offset.left).
@@ -229,7 +229,7 @@
       var settings = $.data(target, PROP_NAME);
       var event = makeICalendar(settings);
       if (settings.echoUrl) {
-        window.location.href = settings.echoUrl + '?content=' + escape(event);
+        window.location.href = settings.echoUrl + '?content=' + encodeURIComponent(event);
       }
       else if (settings.echoField) {
         $(settings.echoField).val(event);
@@ -315,7 +315,7 @@
       }
       var sign = (matches[1] == '-' ? -1 : +1);
       var apply = function (value, factor, method) {
-        value = parseInt(value);
+        value = parseInt(value, 10);
         if (!isNaN(value)) {
           end['setUTC' + method](end['getUTC' + method]() + sign * value * factor);
         }
@@ -454,7 +454,7 @@
     var def = '';
     if (recur.dates) {
       def = 'RDATE;VALUE=DATE:';
-      if (!isArray(recur.dates)) {
+      if (!Array.isArray(recur.dates)) {
         recur.dates = [recur.dates];
       }
       for (var i = 0; i < recur.dates.length; i++) {
@@ -463,7 +463,7 @@
     }
     else if (recur.times) {
       def = 'RDATE;VALUE=DATE-TIME:';
-      if (!isArray(recur.times)) {
+      if (!Array.isArray(recur.times)) {
         recur.times = [recur.times];
       }
       for (var i = 0; i < recur.times.length; i++) {
@@ -472,7 +472,7 @@
     }
     else if (recur.periods) {
       def = 'RDATE;VALUE=PERIOD:';
-      if (!isArray(recur.periods[0])) {
+      if (!Array.isArray(recur.periods[0])) {
         recur.periods = [recur.periods];
       }
       for (var i = 0; i < recur.periods.length; i++) {
@@ -489,11 +489,11 @@
         (recur.weekStart != null ? ';WKST=' +
           ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][recur.weekStart] : '');
       if (recur.by) {
-        if (!isArray(recur.by)) {
+        if (!Array.isArray(recur.by)) {
           recur.by = [recur.by];
         }
         for (var i = 0; i < recur.by.length; i++) {
-          if (!isArray(recur.by[i].values)) {
+          if (!Array.isArray(recur.by[i].values)) {
             recur.by[i].values = [recur.by[i].values];
           }
           def += ';BY' + recur.by[i].type.toUpperCase() + '=' +
@@ -600,7 +600,7 @@
         date.setMinutes(date.getMinutes() - offset);
         date._type = tzid;
       };
-      if (isArray(value._value)) {
+      if (Array.isArray(value._value)) {
         for (var i = 0; i < value._value.length; i++) {
           offsetDate(value._value[i], value.tzid);
         }
@@ -613,7 +613,7 @@
         offsetDate(value._value, value.tzid);
       }
     }
-    else if (isArray(value)) {
+    else if (Array.isArray(value)) {
       for (var i = 0; i < value.length; i++) {
         resolveTimezones(value[i], timezones);
       }
@@ -632,7 +632,7 @@
       name += '_';
     }
     if (owner[name]) { // Turn multiple values into an array
-      if (!isArray(owner[name]) || owner['_' + name + 'IsArray']) {
+      if (!Array.isArray(owner[name]) || owner['_' + name + 'IsArray']) {
         owner[name] = [owner[name]];
       }
       owner[name][owner[name].length] = value;
@@ -642,7 +642,7 @@
     }
     else {
       owner[name] = value;
-      if (isArray(value)) {
+      if (Array.isArray(value)) {
         owner['_' + name + 'IsArray'] = true;
       }
     }
@@ -752,12 +752,4 @@
     return Math.floor(((checkDate - firstDay) /
       (FREQ_SETTINGS[DY].factor * 1000)) / 7) + 1; // Weeks to given date
   }
-
-  /* Determine whether an object is an array.
-     @param  a  (object) the object to test
-     @return  (boolean) true if it is an array, or false if not */
-  function isArray(a) {
-    return (a && a.constructor == Array);
-  }
-
 })(jQuery);
